@@ -96,7 +96,9 @@ ENV/
 workflows/*
 rsync_to_centos.sh
 rsync_to_ubuntu.sh
+rsync_to_webserver.sh
 .python-version
 whooshee/*
 migrations/*
+exclude.txt
 
