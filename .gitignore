@@ -97,3 +97,6 @@ workflows/*
 rsync_to_centos.sh
 rsync_to_ubuntu.sh
 .python-version
+whooshee/*
+migrations/*
+

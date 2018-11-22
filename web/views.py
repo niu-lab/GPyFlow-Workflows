@@ -40,7 +40,8 @@ def upload():
 @app.route('/search', methods=['GET'])
 def search():
     name = request.args.get("name")
-    found = Workflow.query.filter(Workflow.name.like("%{}%".format(name))).all()
+    # found = Workflow.query.filter(Workflow.name.like("%{}%".format(name))).all()
+    found = Workflow.query.whooshee_search(name).all()
     workflows = list()
     for item in found:
         workflow = dict()

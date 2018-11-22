@@ -1,7 +1,9 @@
-from web import db
+from web import whooshee, db
 
 
+@whooshee.register_model('name', 'description')
 class Workflow(db.Model):
+    __tablename__ = 'workflow'
     # 表的结构:
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.TEXT, nullable=False)
