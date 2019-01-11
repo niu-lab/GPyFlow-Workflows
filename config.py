@@ -1,7 +1,6 @@
 import os
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-WORKFLOWS_DIR = os.path.join(BASE_DIR, "workflows")
 # dbpath = os.path.join(BASE_DIR, "data.sqlite3")
 # SQLALCHEMY_DATABASE_URI = 'sqlite:///' + dbpath
 WHOOSHEE_MIN_STRING_LEN = 1
