@@ -100,5 +100,4 @@ rsync_to_webserver.sh
 .python-version
 whooshee/*
 migrations/*
-exclude.txt
-
+.python-version

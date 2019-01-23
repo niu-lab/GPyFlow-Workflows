@@ -7,6 +7,12 @@ import io
 import re
 
 ALLOWED_EXTENSIONS = set(['zip'])
+MACRO_PATTERN = re.compile("[A-Z0-9_]+:.+")
+
+
+class SaveWorkflowException(Exception):
+    def __init__(self, msg):
+        self.msg = msg
 
 
 def allowed_file(filename):
@@ -18,33 +24,46 @@ def save_workflow(request):
     name = request.form.get("name")
     if name is None or name == "":
         error = "{} can't be empty".format("Workflow name")
-        raise Exception(error)
+        raise SaveWorkflowException(error)
     description = request.form.get("description")
     if description is None or description == "":
         error = "{} can't be empty".format("Workflow description")
-        raise Exception(error)
-    macros = request.form.get("macros")
-    print(macros)
-    if macros is None or macros == "":
-        error = "{} can't be empty".format("")
-        raise Exception(error)
-    check_macros(macros)
+        raise SaveWorkflowException(error)
+    macro_names = request.form.getlist("macro-name")
+    macro_values = request.form.getlist("macro-value")
+    if len(macro_values) != len(macro_names):
+        error = "macro name and macro value not match"
+        raise SaveWorkflowException(error)
+    macros_io = io.StringIO()
+    for i in range(len(macro_names)):
+        macro = "{name}:{value}".format(name=macro_names[i],
+                                        value=macro_values[i])
+        if not MACRO_PATTERN.match(macro):
+            error = "macro name:{} error".format(macro_names[i])
+            raise SaveWorkflowException(error)
+        macros_io.write(macro + os.linesep)
+    macros = macros_io.getvalue()
+    macros_io.close()
     author = request.form.get("author")
     if author is None or author == "":
         error = "{} can't be empty".format("Author")
-        raise Exception(error)
+        raise SaveWorkflowException(error)
     email = request.form.get("email")
     if email is None or email == "":
         error = "{} can't be empty".format("Email")
-        raise Exception(error)
+        raise SaveWorkflowException(error)
     file = request.files.get('file')
     if file is None:
         error = "{} can't be empty".format("Workflow file")
-        raise Exception(error)
+        raise SaveWorkflowException(error)
     if not allowed_file(file.filename):
         error = "{} is not allowed".format(file.filename)
-        raise Exception(error)
-    filename = secure_filename(file.filename) + "." + uuid.uuid4().hex
+        raise SaveWorkflowException(error)
+    dir_name = uuid.uuid4().hex
+    workflow_dir = os.path.join(app.config["WORKFLOWS_DIR"], dir_name)
+    if not os.path.exists(workflow_dir):
+        os.mkdir(workflow_dir)
+    filename = os.path.join(dir_name, "{}.zip".format(name))
     file.save(os.path.join(app.config["WORKFLOWS_DIR"], filename))
 
     workflow = Workflow(name=name,
@@ -56,17 +75,6 @@ def save_workflow(request):
                         )
     db.session.add(workflow)
     db.session.commit()
-
-
-def check_macros(macros_string):
-    reader = io.StringIO(macros_string)
-    pattern = re.compile("[A-Z0-9_]+:.+")
-    while True:
-        line = reader.readline().strip()
-        if not pattern.match(line):
-            if line == "":
-                break
-            raise Exception(" '{}' format error".format(line))
 
 
 def parse_macros(macros_string):
@@ -92,8 +100,3 @@ def transform(found):
     workflow["email"] = found.email
     workflow["path"] = found.path
     return workflow
-
-
-if __name__ == "__main__":
-    pass
-    print(check_macros("R>: end 1 fastq file input"))

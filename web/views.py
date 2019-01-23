@@ -1,8 +1,9 @@
 import os
 from flask import render_template, request, send_from_directory
-from web import app
+from web import app, whooshee
 from web.models import Workflow
-from web.helper import save_workflow, transform
+from web.helper import save_workflow, transform, SaveWorkflowException
+from config import BASE_DIR
 
 
 @app.route('/', methods=['GET'])
@@ -31,16 +32,20 @@ def upload():
         err = None
         try:
             save_workflow(request)
-            info = "Save success"
+            info = "save success"
+        except SaveWorkflowException as e:
+            err = "save error:{}".format(e.msg)
         except Exception as e:
-            err = "Sava error,{}".format(e.args)
+            err = "save error"
+            app.logger.exception(e)
         return render_template("upload.html", info=info, err=err)
 
 
 @app.route('/search', methods=['GET'])
 def search():
     name = request.args.get("name")
-    # found = Workflow.query.filter(Workflow.name.like("%{}%".format(name))).all()
+    if not os.path.exists(os.path.join(BASE_DIR, "workflow")):
+        whooshee.reindex()
     found = Workflow.query.whooshee_search(name).all()
     workflows = list()
     for item in found:

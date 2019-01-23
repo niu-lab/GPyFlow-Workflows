@@ -41,7 +41,10 @@
                         <label>Macros Interface</label>
                         <p class="btn fa fa-question-circle" data-toggle="modal" data-target="#macro"></p>
                         <br>
-                        <textarea title="macros" name="macros" class="form-control"></textarea>
+                        <a id="add-macro-btn" class="btn btn-primary mb-3">Add Macro</a>
+                        <div id="macros">
+                        </div>
+                        {#<textarea title="macros" name="macros" class="form-control"></textarea>#}
                     </div>
 
                     <div class="form-group">
@@ -72,17 +75,13 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title" id="myModalLabel">Usage</h4>
+                    <h4 class="modal-title" id="myModalLabel">Example</h4>
                 </div>
                 <div class="modal-body">
-                    <p>
-                        1. Macro name and its description should be separated by colon <br>
-                        2. One line per Macro <br>
-                    </p>
                     <label>Example</label>
-                    <p>R1:the r1 end of fastq file</p>
-                    <p>R2:the r2 end of fastq file</p>
-                    <p>OUTFILENAE:the output filename</p>
+                    <p>R1: the r1 end of fastq file</p>
+                    <p>R2: the r2 end of fastq file</p>
+                    <p>OUTFILENAME: the output filename</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -93,8 +92,38 @@
         <!-- /.modal-dialog -->
     </div>
 
+    <div id="macro-tmpl" hidden>
+        <div>
+            <div class="input-group">
+                <div class="input-group-addon">Macro Name</div>
+                <input type="text" name="macro-name" class="form-control" placeholder="Macro Name">
+                <div class="input-group-addon">Macro Description</div>
+                <input type="text" name="macro-value" class="form-control"
+                       placeholder="Macro Description">
+                <div class="input-group-addon btn macro-remove-btn">-</div>
+            </div>
+            <div class="mb-3"></div>
+        </div>
+    </div>
+
 
 {% endblock %}
+
+
+{% block jsscript %}
+    <script>
+        $("#add-macro-btn").click(function () {
+            $("#macros").append($("#macro-tmpl").html());
+            $(".macro-remove-btn").bind('click', macroRemove);
+        });
+
+        function macroRemove() {
+            $(this).parent().parent().remove();
+        }
+    </script>
+
+{% endblock %}
+
 
 
 
