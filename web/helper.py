@@ -85,7 +85,7 @@ def parse_macros(macros_string):
         if line == "":
             break
         splits = line.split(":")
-        macros_dict[splits[0]] = splits[1]
+        macros_dict[splits[0]] = "".join(splits[1:])
     return macros_dict
 
 

@@ -43,17 +43,18 @@ def upload():
 
 @app.route('/search', methods=['GET'])
 def search():
-    name = request.args.get("name")
-    if not os.path.exists(os.path.join(BASE_DIR, "workflow")):
-        whooshee.reindex()
-    found = Workflow.query.whooshee_search(name).all()
+    name = request.args.get("name", type=str)
     workflows = list()
-    for item in found:
-        workflow = dict()
-        workflow["name"] = item.name
-        workflow["description"] = item.description
-        workflow["path"] = "workflow" + "/" + str(item.id)
-        workflows.append(workflow)
+    if len(name.strip()) != 0:
+        if not os.path.exists(os.path.join(BASE_DIR, "workflow")):
+            whooshee.reindex()
+        found = Workflow.query.whooshee_search(name).all()
+        for item in found:
+            workflow = dict()
+            workflow["name"] = item.name
+            workflow["description"] = item.description
+            workflow["path"] = "workflow" + "/" + str(item.id)
+            workflows.append(workflow)
     return render_template("search.html", workflows=workflows)
 
 
